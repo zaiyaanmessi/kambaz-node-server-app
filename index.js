@@ -17,25 +17,28 @@ mongoose.connect(CONNECTION_STRING);
 
 const app = express();
 
+// CORS configuration
 app.use(cors({ 
     credentials: true,
     origin: process.env.CLIENT_URL || "http://localhost:3000",
 })); 
 
+// Trust proxy (needed for Render)
+if (process.env.SERVER_ENV === "production") {
+    app.set('trust proxy', 1);
+}
+
+// Session configuration
 const sessionOptions = {
     secret: process.env.SESSION_SECRET || "kambaz",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        secure: process.env.SERVER_ENV === "production",  // true in production, false in dev
+        sameSite: process.env.SERVER_ENV === "production" ? "none" : "lax",  // "none" for cross-origin
+        maxAge: 24 * 60 * 60 * 1000  // 24 hours
+    }
 };
-
-if (process.env.SERVER_ENV === "production") {
-    sessionOptions.proxy = true;
-    sessionOptions.cookie = {
-        sameSite: "none",
-        secure: true,
-        // Domain removed - causes issues with cookies
-    };
-}
 
 app.use(session(sessionOptions));
 app.use(express.json());
