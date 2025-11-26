@@ -1,23 +1,9 @@
 import model from "./model.js";
-import enrollmentModel from "../Enrollments/model.js";
 
-export default function CoursesDao(db) {
+export default function CoursesDao() {  // ✅ Removed db parameter
   
   const findAllCourses = () => {
-    return model.find();
-  };
-  
-  const findCoursesForEnrolledUser = async (userId) => {
-    // Get all enrollments for this user from MongoDB
-    const enrollments = await enrollmentModel.find({ user: userId });
-    
-    // Get course IDs from enrollments
-    const courseIds = enrollments.map(enrollment => enrollment.course);
-    
-    // Find all courses with those IDs
-    const courses = await model.find({ _id: { $in: courseIds } });
-    
-    return courses;
+    return model.find({}, { name: 1, description: 1 });
   };
   
   const createCourse = (course) => {
@@ -36,7 +22,6 @@ export default function CoursesDao(db) {
 
   return {
     findAllCourses,
-    findCoursesForEnrolledUser,
     createCourse,
     deleteCourse,
     updateCourse 

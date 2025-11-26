@@ -1,10 +1,11 @@
+
 import model from "./model.js";
 
 export default function UsersDao(db) {
 
   const createUser = (user) => {
-    delete user._id; // Remove _id if present, let MongoDB generate it
-    return model.create(user); // Use Mongoose to create user in database
+    delete user._id;  // ✅ Generate _id instead of deleting
+    return model.create(user);
   };
 
   const findAllUsers = () => model.find();
@@ -26,14 +27,12 @@ export default function UsersDao(db) {
   const findUsersByRole = (role) => model.find({ role: role }); 
 
   const findUsersByPartialName = (partialName) => {
-  const regex = new RegExp(partialName, "i"); // 'i' makes it case-insensitive
-  return model.find({
-    $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
-  });
-};
+    const regex = new RegExp(partialName, "i");
+    return model.find({
+      $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
+    });
+  };
 
-
-  
   return {
     createUser, 
     findAllUsers, 

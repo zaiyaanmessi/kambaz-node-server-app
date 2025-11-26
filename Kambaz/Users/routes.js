@@ -50,23 +50,52 @@ export default function UserRoutes(app, db) {
     res.json(user);
   };
   
+  // const updateUser = async (req, res) => {
+  //   const { userId } = req.params;
+  //   const userUpdates = req.body;
+    
+  //   // Update the user in database
+  //   await dao.updateUser(userId, userUpdates);
+    
+  //   // Fetch the updated user from database
+  //   const updatedUser = await dao.findUserById(userId);
+    
+  //   // If the updated user is the current logged-in user, update session
+  //   const currentUser = req.session["currentUser"];
+  //   if (currentUser && currentUser._id === userId) {
+  //     req.session["currentUser"] = updatedUser;
+  //   }
+    
+  //   // Return the updated user (not session user)
+  //   res.json(updatedUser);
+  // };
+
   const updateUser = async (req, res) => {
+    console.log("=== UPDATE USER ROUTE ===");
     const { userId } = req.params;
     const userUpdates = req.body;
+    console.log("Updating user:", userId);
+    console.log("Updates:", userUpdates);
     
     // Update the user in database
     await dao.updateUser(userId, userUpdates);
+    console.log("Database updated");
     
     // Fetch the updated user from database
     const updatedUser = await dao.findUserById(userId);
+    console.log("Updated user from DB:", updatedUser);
     
     // If the updated user is the current logged-in user, update session
     const currentUser = req.session["currentUser"];
+    console.log("Current session user:", currentUser?._id);
+    
     if (currentUser && currentUser._id === userId) {
       req.session["currentUser"] = updatedUser;
+      console.log("Session updated with new user data");
     }
     
     // Return the updated user (not session user)
+    console.log("Returning to client:", updatedUser);
     res.json(updatedUser);
   };
   
@@ -82,12 +111,20 @@ export default function UserRoutes(app, db) {
   };
   
   const signin = async (req, res) => {
+    console.log("=== SIGNIN ATTEMPT ===");
     const { username, password } = req.body;
+    console.log("Username:", username);
+    
     const currentUser = await dao.findUserByCredentials(username, password);
+    console.log("User found:", currentUser ? "YES" : "NO");
+    
     if (currentUser) {
       req.session["currentUser"] = currentUser;
+      console.log("Session created:", req.session["currentUser"]?._id);
+      console.log("Session ID:", req.sessionID);
       res.json(currentUser);
     } else {
+      console.log("Login failed - invalid credentials");
       res.status(401).json({ message: "Unable to login. Try again later." });
     }
   };
