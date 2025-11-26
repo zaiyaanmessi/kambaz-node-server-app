@@ -7,14 +7,14 @@ import UserRoutes from "./Kambaz/Users/routes.js";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
 import ModulesRoutes from "./Kambaz/Modules/routes.js";
 import AssignmentsRoutes from "./Kambaz/Assignments/routes.js";
-import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";  // ← ADD THIS
+import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
 import "dotenv/config";
 import session from "express-session";
 import mongoose from 'mongoose';
 
-const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz"
-mongoose.connect(CONNECTION_STRING);
-mongoose.connect(CONNECTION_STRING);
+const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz";
+mongoose.connect(CONNECTION_STRING);  // ✅ Only once!
+
 const app = express();
 
 app.use(cors({ 
@@ -28,12 +28,12 @@ const sessionOptions = {
     saveUninitialized: false,
 };
 
-if (process.env.SERVER_ENV !== "development") {
+if (process.env.SERVER_ENV === "production") {  // ✅ Changed
     sessionOptions.proxy = true;
     sessionOptions.cookie = {
         sameSite: "none",
         secure: true,
-        domain: process.env.SERVER_DOMAIN,
+        domain: process.env.SERVER_URL,  // ✅ Changed from SERVER_DOMAIN
     };
 }
 
@@ -44,7 +44,7 @@ UserRoutes(app, db);
 CourseRoutes(app, db);
 ModulesRoutes(app, db);
 AssignmentsRoutes(app, db);
-EnrollmentsRoutes(app, db);  // ← ADD THIS
+EnrollmentsRoutes(app, db);
 Lab5(app);
 Hello(app);
 
