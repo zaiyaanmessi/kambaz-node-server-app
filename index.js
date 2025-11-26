@@ -13,7 +13,7 @@ import session from "express-session";
 import mongoose from 'mongoose';
 
 const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz";
-mongoose.connect(CONNECTION_STRING);  // ✅ Only once!
+mongoose.connect(CONNECTION_STRING);
 
 const app = express();
 
@@ -28,12 +28,12 @@ const sessionOptions = {
     saveUninitialized: false,
 };
 
-if (process.env.SERVER_ENV === "production") {  // ✅ Changed
+if (process.env.SERVER_ENV === "production") {
     sessionOptions.proxy = true;
     sessionOptions.cookie = {
         sameSite: "none",
         secure: true,
-        domain: process.env.SERVER_URL,  // ✅ Changed from SERVER_DOMAIN
+        // Domain removed - causes issues with cookies
     };
 }
 
