@@ -1,36 +1,38 @@
-import { v4 as uuidv4 } from "uuid";
+import model from "./model.js";
+import enrollmentModel from "../Enrollments/model.js";
+
 export default function CoursesDao(db) {
-  function findAllCourses() {
-    return db.courses;
-  }
   
-  function findCoursesForEnrolledUser(userId) {
-    const { courses, enrollments } = db;
-    const enrolledCourses = courses.filter((course) =>
-      enrollments.some((enrollment) => enrollment.user === userId && enrollment.course === course._id));
-    return enrolledCourses;
-  }
+  const findAllCourses = () => {
+    return model.find();
+  };
   
-  function createCourse(course) {
-    const newCourse = { ...course, _id: uuidv4() };
-    db.courses = [...db.courses, newCourse];
-    return newCourse;
-  }
+  const findCoursesForEnrolledUser = async (userId) => {
+    // Get all enrollments for this user from MongoDB
+    const enrollments = await enrollmentModel.find({ user: userId });
+    
+    // Get course IDs from enrollments
+    const courseIds = enrollments.map(enrollment => enrollment.course);
+    
+    // Find all courses with those IDs
+    const courses = await model.find({ _id: { $in: courseIds } });
+    
+    return courses;
+  };
   
-  function deleteCourse(courseId) {
-    const { courses, enrollments } = db;
-    db.courses = courses.filter((course) => course._id !== courseId);
-    db.enrollments = enrollments.filter(
-      (enrollment) => enrollment.course !== courseId
-    );
-  }
-  function updateCourse(courseId, courseUpdates) {
-    const { courses } = db;
-    const course = courses.find((course) => course._id === courseId);
-    Object.assign(course, courseUpdates);
-    return course;
-  }
+  const createCourse = (course) => {
+    // Remove _id if it exists, let MongoDB generate it
+    delete course._id;
+    return model.create(course);
+  };
   
+  const deleteCourse = (courseId) => {
+    return model.deleteOne({ _id: courseId });
+  };
+  
+  const updateCourse = (courseId, courseUpdates) => {
+    return model.updateOne({ _id: courseId }, { $set: courseUpdates });
+  };
 
   return {
     findAllCourses,

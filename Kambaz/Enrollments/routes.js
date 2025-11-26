@@ -1,7 +1,7 @@
 import EnrollmentsDao from "./dao.js";
 
-export default function EnrollmentsRoutes(app, db) {
-  const dao = EnrollmentsDao(db);
+export default function EnrollmentsRoutes(app) {
+  const dao = EnrollmentsDao();
 
   // Get all enrollments for a user
   const findEnrollmentsForUser = async (req, res) => {  // ✅ Add async
